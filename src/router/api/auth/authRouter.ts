@@ -1,10 +1,8 @@
 import Router from 'koa-router';
-import { Context } from 'vm';
+import { register } from './auth.ctrl';
 
 const authRouter = new Router();
 
-authRouter.get('/test', (ctx: Context) => {
-  ctx.body = 'test';
-});
+authRouter.post('/register', register);
 
 export default authRouter;
