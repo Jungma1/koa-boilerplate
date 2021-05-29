@@ -1,4 +1,5 @@
 import './env';
+import './database'
 import app from './app';
 
 const { PORT } = process.env;
