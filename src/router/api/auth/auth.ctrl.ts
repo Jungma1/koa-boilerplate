@@ -50,6 +50,14 @@ export const register = async (ctx: Context) => {
     const data = user.toJSON();
     delete data.password;
     ctx.body = data;
+
+    // 토큰 발행
+    const token = user.generateToken();
+
+    ctx.cookies.set('access_token', token, {
+      maxAge: 1000 * 60 * 60 * 24 * 7, // 7일
+      httpOnly: true,
+    });
   } catch (e) {
     ctx.throw(500);
   }
@@ -89,7 +97,37 @@ export const login = async (ctx: Context) => {
     const data = user.toJSON();
     delete data.password;
     ctx.body = data;
+
+    // 토큰 발행
+    const token = user.generateToken();
+
+    ctx.cookies.set('access_token', token, {
+      maxAge: 1000 * 60 * 60 * 24 * 7, // 7일
+      httpOnly: true,
+    });
   } catch (e) {
     ctx.throw(500, e);
   }
+};
+
+/*
+  POST /api/auth/logout
+*/
+export const logout = async (ctx: Context) => {
+  ctx.cookies.set('access_token');
+  ctx.status = 204; // No Content
+};
+
+/*
+  GET /api/auth/check
+*/
+export const check = async (ctx: Context) => {
+  const { user } = ctx.state;
+
+  if (!user) {
+    ctx.status = 401; // Unauthorized
+    return;
+  }
+
+  ctx.body = user;
 };

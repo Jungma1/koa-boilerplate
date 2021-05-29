@@ -1,5 +1,6 @@
 import { Document, model, Model, Schema } from 'mongoose';
 import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
 
 interface IUser {
   username: string;
@@ -11,6 +12,7 @@ interface IUser {
 interface IUserDocument extends IUser, Document {
   setPassword: (password: string) => Promise<void>;
   checkPassword: (password: string) => Promise<boolean>;
+  generateToken: () => string;
 }
 
 interface IUserModel extends Model<IUserDocument> {
@@ -42,6 +44,21 @@ UserSchema.methods.checkPassword = async function (password: string) {
   const result = await bcrypt.compare(password, this.password);
 
   return result;
+};
+
+UserSchema.methods.generateToken = function () {
+  const token = jwt.sign(
+    {
+      _id: this._id,
+      username: this.username,
+    },
+    process.env.JWT_SECRET,
+    {
+      expiresIn: '7d', // 7일 동안 유효함
+    }
+  );
+
+  return token;
 };
 
 UserSchema.statics.findByEmail = function (email: string) {
