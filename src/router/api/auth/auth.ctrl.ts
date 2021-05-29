@@ -54,3 +54,42 @@ export const register = async (ctx: Context) => {
     ctx.throw(500);
   }
 };
+
+/*
+  POST /api/auth/login
+  {
+    "email": "test@naver.com",
+    "password": "1234"
+  }
+*/
+export const login = async (ctx: Context) => {
+  const { email, password } = ctx.request.body;
+
+  if (!email || !password) {
+    ctx.status = 401; // Unauthorized
+    return;
+  }
+
+  try {
+    const user = await User.findByEmail(email); // 해당하는 이메일이 있는지 확인
+
+    if (!user) {
+      ctx.status = 401; // Unauthorized
+      return;
+    }
+
+    const vaild = await user.checkPassword(password); // 비밀번호가 맞는지 확인
+
+    if (!vaild) {
+      ctx.status = 401; // Unauthorized
+      return;
+    }
+
+    // response 테스트
+    const data = user.toJSON();
+    delete data.password;
+    ctx.body = data;
+  } catch (e) {
+    ctx.throw(500, e);
+  }
+};

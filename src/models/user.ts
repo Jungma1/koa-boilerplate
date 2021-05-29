@@ -14,7 +14,7 @@ interface IUserDocument extends IUser, Document {
 }
 
 interface IUserModel extends Model<IUserDocument> {
-  findByEmail: (email: string) => any;
+  findByEmail: (email: string) => Promise<IUserDocument>;
 }
 
 const UserSchema: Schema<IUserDocument, IUserModel> = new Schema({
